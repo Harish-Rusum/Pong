@@ -3,15 +3,10 @@ import pygame
 pygame.init()
 pygame.mixer.pre_init()
 
-screen_width = 800
+screen_width = 900
 screen_height = 600
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Pong V.2")
-
-unscaled_bg_img = pygame.image.load("img/Table.png").convert()
-bg_img = pygame.transform.scale(unscaled_bg_img, (unscaled_bg_img.get_width() * 10, unscaled_bg_img.get_height() * 10))
-unscaled_welcome_screen = pygame.image.load("img/Welcome.png").convert()
-welcome_screen = pygame.transform.scale(unscaled_welcome_screen, (unscaled_welcome_screen.get_width() * 10, unscaled_welcome_screen.get_height() * 10))
 
 clock = pygame.time.Clock()
 fps = 60
@@ -78,29 +73,43 @@ class Ball:
     def __init__(self):
         self.active = False
         self.reset_time = 0
-        self.speed_x = 4
-        self.speed_y = 4
         self.img = pygame.transform.smoothscale(pygame.image.load("img/Ping_Pong_Ball.png"), (20,20))
         self.rect = self.img.get_rect()
         self.rect.x = screen_width // 2 - (self.img.get_width() // 2)
         self.rect.y = screen_height // 2 - (self.img.get_height() // 2) 
+        self.acc = 0.1
+        self.y_vel = 0
+        self.x_vel = 0
+        self.max_speed = 6
 
     def reset(self):
         self.rect.x = screen_width // 2 - (self.img.get_width() // 2)
         self.rect.y = screen_height // 2 - (self.img.get_height() // 2)
         self.active = False
         self.reset_time = pygame.time.get_ticks()
-        self.speed_x = -self.speed_x
+        self.x_vel ,self.y_vel = 0,0
 
     def update(self,slider1,slider2,surface):
         if self.active:
-            self.rect.x += self.speed_x 
-            self.rect.y += self.speed_y 
+            if self.y_vel > 0: 
+                self.y_vel += self.acc 
+                self.y_vel = min(self.y_vel,self.max_speed)
+            else: 
+                self.y_vel -= self.acc
+                self.y_vel = max(self.y_vel,-self.max_speed)
+            if self.x_vel > 0: 
+                self.x_vel += self.acc 
+                self.x_vel = min(self.x_vel,self.max_speed)
+            else: 
+                self.x_vel -= self.acc
+                self.x_vel = max(self.x_vel,-self.max_speed)
+            self.rect.x += self.x_vel 
+            self.rect.y += self.y_vel 
 
             if self.rect.top <= 0 or self.rect.bottom >= screen_height:
-                self.speed_y = -self.speed_y
+                self.y_vel = -self.y_vel
             if self.rect.colliderect(slider2.rect) or self.rect.colliderect(slider1.rect):
-                self.speed_x = -self.speed_x
+                self.x_vel = -self.x_vel
 
             if self.rect.left <= slider1.rect.right - 10:
                 self.reset()
@@ -117,13 +126,13 @@ class Ball:
         surf.blit(self.img,self.rect)
 
 def main(fps, clock, width, show_menu=True):
-    s1 = Slider( width // 16, 1, 1, 10, False)
-    s2 = Slider(width - (width // 16 + s1.rect.width), 1, 1, 10, True)
+    s1 = Slider( width // 16, 1.5, 1.5, 12, False)
+    s2 = Slider(width - (width // 16 + s1.rect.width), 1.5, 1.5, 12, True)
     ball = Ball()
     run = True
     while run:
+        screen.fill("#000000")
         if show_menu:
-            screen.blit(welcome_screen, (0, 0))
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
@@ -135,7 +144,6 @@ def main(fps, clock, width, show_menu=True):
                     else:
                         show_menu = False
         else:
-            screen.blit(bg_img, (0, 0))
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
