@@ -1,6 +1,5 @@
 import pygame
 
-
 pygame.init()
 pygame.mixer.pre_init()
 
@@ -75,17 +74,16 @@ class Slider:
                 self.idle()
         self.update_pos(0, self.y_vel)
 
-
 class Ball:
     def __init__(self):
         self.active = False
         self.reset_time = 0
-        self.speed_x = 6
-        self.speed_y = 6
+        self.speed_x = 4
+        self.speed_y = 4
         self.img = pygame.transform.smoothscale(pygame.image.load("img/Ping_Pong_Ball.png"), (20,20))
-        self.x = screen_width // 2 - (self.img.get_width() // 2)
-        self.y = screen_height // 2 - (self.img.get_height() // 2) 
         self.rect = self.img.get_rect()
+        self.rect.x = screen_width // 2 - (self.img.get_width() // 2)
+        self.rect.y = screen_height // 2 - (self.img.get_height() // 2) 
 
     def reset(self):
         self.rect.x = screen_width // 2 - (self.img.get_width() // 2)
@@ -98,7 +96,7 @@ class Ball:
         if self.active:
             self.rect.x += self.speed_x 
             self.rect.y += self.speed_y 
-            
+
             if self.rect.top <= 0 or self.rect.bottom >= screen_height:
                 self.speed_y = -self.speed_y
             if self.rect.colliderect(slider2.rect) or self.rect.colliderect(slider1.rect):
@@ -144,7 +142,7 @@ def main(fps, clock, width, show_menu=True):
                 if event.type == pygame.KEYDOWN:
                     if event.key ==  pygame.K_ESCAPE:
                         run = False
-            
+
             s1.update(True)
             screen.blit(s1.img, s1.rect)
             s2.update(False)
