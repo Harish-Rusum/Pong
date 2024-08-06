@@ -95,11 +95,19 @@ def main(fps, clock, width, show_menu=True):
                     run = False
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     show_menu = False
+                if event.type == pygame.KEYDOWN:
+                    if event.key ==  pygame.K_ESCAPE:
+                        run = False
+                    else:
+                        show_menu = False
         else:
             screen.blit(bg_img, (0, 0))
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
+                if event.type == pygame.KEYDOWN:
+                    if event.key ==  pygame.K_ESCAPE:
+                        run = False
 
             # Update and render sliders
             s1.update(True)
