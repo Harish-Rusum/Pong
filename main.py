@@ -1,26 +1,24 @@
 import pygame
 
-# Initialize Pygame and the mixer for sounds
+
 pygame.init()
 pygame.mixer.pre_init()
 
-# Set up the screen dimensions and display
 screen_width = 800
 screen_height = 600
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Pong V.2")
 
-# Load and scale background images
 unscaled_bg_img = pygame.image.load("img/Table.png").convert()
 bg_img = pygame.transform.scale(unscaled_bg_img, (unscaled_bg_img.get_width() * 10, unscaled_bg_img.get_height() * 10))
 unscaled_welcome_screen = pygame.image.load("img/Welcome.png").convert()
 welcome_screen = pygame.transform.scale(unscaled_welcome_screen, (unscaled_welcome_screen.get_width() * 10, unscaled_welcome_screen.get_height() * 10))
 
-# Setting up fps thing
 clock = pygame.time.Clock()
 fps = 60
 
-# Define the Slider class for player paddles
+ball_size = 20
+ball_speed_x, ball_speed_y = 6, 6
 class Slider:
     def __init__(self, x, acc, decc, max_speed, flip):
         self.unscaled_img = pygame.image.load("img/Slider.png").convert()
@@ -79,13 +77,53 @@ class Slider:
                 self.idle()
         self.update_pos(0, self.y_vel)
 
-# Main function to run the game
+
+class Ball:
+    def __init__(self):
+        self.x = screen_height // 2 - ball_size // 2
+        self.y = screen_height // 2 - ball_size // 2
+        self.active = False
+        self.reset_time = 0
+        self.speed_x = 6
+        self.speed_y = 6
+        self.img = pygame.transform.smoothscale(pygame.image.load("img/Ping_Pong_Ball.png"), (20,20))
+        self.rect = self.img.get_rect()
+
+    def reset(self):
+        self.rect.x = screen_height // 2 - ball_size // 2
+        self.rect.y = screen_height // 2 - ball_size // 2
+        self.active = False
+        self.reset_time = pygame.time.get_ticks()
+        self.speed_x = -self.speed_x
+
+    def update(self,slider1,slider2,surface):
+        if self.active:
+            self.rect.x += self.speed_x 
+            self.rect.y += self.speed_y 
+            
+            if self.rect.top <= 0 or self.rect.bottom >= screen_height:
+                self.speed_y = -self.speed_y
+            if self.rect.colliderect(slider2.rect) or self.rect.colliderect(slider1.rect):
+                self.speed_x = -self.speed_x
+
+            if self.rect.left <= slider1.rect.right - 10:
+                self.reset()
+            if self.rect.right >= slider2.rect.left + 10:
+                self.reset()
+
+        else:
+            current_time = pygame.time.get_ticks()
+            if current_time - self.reset_time >= 2000:
+                self.active = True
+        self.render(surface) 
+
+    def render(self,surf):
+        surf.blit(self.img,self.rect)
+
 def main(fps, clock, width, show_menu=True):
-    # Player slider definitions
     s1 = Slider( width // 16, 1, 1, 10, False)
     s2 = Slider(width - (width // 16 + s1.rect.width), 1, 1, 10, True)
-
-    # Run the game loop
+    ball = Ball()
     run = True
     while run:
         if show_menu:
@@ -108,17 +146,16 @@ def main(fps, clock, width, show_menu=True):
                 if event.type == pygame.KEYDOWN:
                     if event.key ==  pygame.K_ESCAPE:
                         run = False
-
-            # Update and render sliders
+            
             s1.update(True)
             screen.blit(s1.img, s1.rect)
             s2.update(False)
             screen.blit(s2.img, s2.rect)
+            ball.update(s1,s2,screen)
 
         pygame.display.update()
         clock.tick(fps)
 
-# Run the game if the script is executed
 if __name__ == "__main__":
     main(fps, clock, screen_width)
 
