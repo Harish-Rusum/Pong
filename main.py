@@ -17,8 +17,6 @@ welcome_screen = pygame.transform.scale(unscaled_welcome_screen, (unscaled_welco
 clock = pygame.time.Clock()
 fps = 60
 
-ball_size = 20
-ball_speed_x, ball_speed_y = 6, 6
 class Slider:
     def __init__(self, x, acc, decc, max_speed, flip):
         self.unscaled_img = pygame.image.load("img/Slider.png").convert()
@@ -35,14 +33,14 @@ class Slider:
         self.max_speed = max_speed
 
     def update_pos(self, dx, dy):
-        if self.rect.top + dy < 40:
+        if self.rect.top + dy < 10:
             dy = 0
             self.y_vel = 0
-            self.rect.y = 40
-        if self.rect.bottom + dy > screen_height - 40:
+            self.rect.y = 10
+        if self.rect.bottom + dy > screen_height - 10:
             dy = 0
             self.y_vel = 0
-            self.rect.y = screen_height - 40 - self.rect.height
+            self.rect.y = screen_height - 10 - self.rect.height
         self.y_vel = max(-self.max_speed, min(self.max_speed, self.y_vel))
         self.rect.x += dx
         self.rect.y += dy
@@ -80,18 +78,18 @@ class Slider:
 
 class Ball:
     def __init__(self):
-        self.x = screen_height // 2 - ball_size // 2
-        self.y = screen_height // 2 - ball_size // 2
         self.active = False
         self.reset_time = 0
         self.speed_x = 6
         self.speed_y = 6
         self.img = pygame.transform.smoothscale(pygame.image.load("img/Ping_Pong_Ball.png"), (20,20))
+        self.x = screen_width // 2 - (self.img.get_width() // 2)
+        self.y = screen_height // 2 - (self.img.get_height() // 2) 
         self.rect = self.img.get_rect()
 
     def reset(self):
-        self.rect.x = screen_height // 2 - ball_size // 2
-        self.rect.y = screen_height // 2 - ball_size // 2
+        self.rect.x = screen_width // 2 - (self.img.get_width() // 2)
+        self.rect.y = screen_height // 2 - (self.img.get_height() // 2)
         self.active = False
         self.reset_time = pygame.time.get_ticks()
         self.speed_x = -self.speed_x
